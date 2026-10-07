@@ -86,7 +86,7 @@ int sealedkey_read_path(SealedKey *sk, const char *path)
 int sealedkey_decrypt_path(SealedKey *sk, const char *path)
 {
 	if ( sealedkey_read_path(sk, path) != 0 )
-		return 1;
+		return -1;
 	if ( sealedkey_decrypt(sk) != 0 )
 		return -2;
 	return 0;
