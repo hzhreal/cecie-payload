@@ -46,6 +46,7 @@ int sealedkey_generate(SealedKey *sk)
 		close(fd);
 		return -2;
 	}
+	close(fd);
 
 	return 0;
 }
@@ -62,6 +63,7 @@ int sealedkey_decrypt(SealedKey *sk)
 		close(fd);
 		return -2;
 	}
+	close(fd);
 
 	return 0;
 }
