@@ -6,8 +6,7 @@
 #include "../include/savedata.h"
 #include "../include/file.h"
 #include "../include/commands.h"
-
-#define SAVEFOLDER "/data/HTOS/uploadencrypted"
+#include "../include/config.h"
 
 static const char *savedata_check_err(int r)
 {
@@ -33,11 +32,12 @@ const char *cmd_dump(const char *savename, const char *targetfolder)
 	char randstr[RANDSTR_LEN];
 	struct stat s;
 	int r;
+	const char *savefolder = config_get_str("saveDirectory");
 
 	if ( stat(targetfolder, &s) != 0 || !S_ISDIR(s.st_mode) )
 		return SR_INVALID(CODE("Target folder does not exist or is not a dir."));
 
-	if ( ( r = savedata_check(SAVEFOLDER, savename) ) != 0 )
+	if ( ( r = savedata_check(savefolder, savename) ) != 0 )
 		return savedata_check_err(r);
 
 	get_randstr(randstr);
@@ -45,7 +45,7 @@ const char *cmd_dump(const char *savename, const char *targetfolder)
 	rmdir(mountpath);
 	mkdir(mountpath, 0777);
 
-	if ( savedata_mount(SAVEFOLDER, savename, mountpath) != 0 ) {
+	if ( savedata_mount(savefolder, savename, mountpath) != 0 ) {
 		rmdir(mountpath);
 		return SR_INVALID(CODE("Mount failed."));
 	}
@@ -66,11 +66,12 @@ const char *cmd_update(const char *savename, const char *sourcefolder)
 	char randstr[RANDSTR_LEN];
 	struct stat s;
 	int r;
+	const char *savefolder = config_get_str("saveDirectory");
 
 	if ( stat(sourcefolder, &s) != 0 || !S_ISDIR(s.st_mode) )
 		return SR_INVALID(CODE("Source folder does not exist or is not a dir."));
 
-	if ( ( r = savedata_check(SAVEFOLDER, savename) ) != 0 )
+	if ( ( r = savedata_check(savefolder, savename) ) != 0 )
 		return savedata_check_err(r);
 
 	get_randstr(randstr);
@@ -78,7 +79,7 @@ const char *cmd_update(const char *savename, const char *sourcefolder)
 	rmdir(mountpath);
 	mkdir(mountpath, 0777);
 
-	if ( savedata_mount(SAVEFOLDER, savename, mountpath) != 0 ) {
+	if ( savedata_mount(savefolder, savename, mountpath) != 0 ) {
 		rmdir(mountpath);
 		return SR_INVALID(CODE("Mount failed."));
 	}

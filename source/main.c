@@ -12,8 +12,7 @@
 #include "../include/savedata.h"
 #include "../include/tiny-json.h"
 #include "../include/commands.h"
-
-#define PORT 1234
+#include "../include/config.h"
 
 static inline const char *json_get_str(const json_t *obj, const char *p)
 {
@@ -138,6 +137,17 @@ int main(void)
 		perror("setuid");
 		return 1;
 	}
+
+	if ( config_init() != 0 ) {
+		fprintf(stderr, "Failed to initialize config file %s.\n", CONFIG_PATH);
+		return 1;
+	}
+	uint16_t port;
+	if ( config_get_u16("port", &port) != 0 || !config_exists("saveDirectory") ) {
+		fprintf(stderr, "Invalid config file %s.\n", CONFIG_PATH);
+		return 1;
+	}
+
 	srand(time(NULL));
 	savedata_maxkeyset();
 
@@ -150,7 +160,7 @@ int main(void)
 	struct sockaddr_in addr = {0};
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	addr.sin_port = htons(PORT);
+	addr.sin_port = htons(port);
 
 	if ( bind(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0 ) {
 		perror("bind");
@@ -164,7 +174,7 @@ int main(void)
 		return 1;
 	}
 
-	printf("CECIE-payload is listening on port %d.\n", PORT);
+	printf("CECIE-payload is listening on port %d.\n", port);
 
 	struct sockaddr_in client_addr;
 	socklen_t addr_len;
