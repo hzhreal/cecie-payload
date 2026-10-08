@@ -105,7 +105,7 @@ int sealedkey_keyset_check(const char *path)
 	uint16_t maxkeyset = savedata_maxkeyset_get();
 	if (maxkeyset == 0)
 		return -2;
-	if ( sealedkey_version_get(&sk) != maxkeyset )
+	if ( sealedkey_version_get(&sk) > maxkeyset )
 		return -3;
 	return 0;
 }
