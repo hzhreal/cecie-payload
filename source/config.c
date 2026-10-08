@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -20,8 +21,11 @@ static char config[MAX_KEYS][MAX_VALUE_SIZE] = {0};
 static uint8_t hash(const char *s, size_t n)
 {
 	uint8_t h = 0;
-	for (size_t i = 0; i < n; i++)
+	for (size_t i = 0; i < n; i++) {
+		if ( isspace((unsigned char) s[i]) )
+			continue;
 		h += s[i];
+	}
 	return h;
 }
 
@@ -30,6 +34,8 @@ int config_init(void)
 	char line[MAX_KEY_SIZE + 1 + MAX_VALUE_SIZE + 1];
 	char *delim, *end;
 	ptrdiff_t m, n;
+	size_t i, j, k;
+	uint8_t h;
 
 	FILE *f = fopen(CONFIG_PATH, "r");
 	if (f == NULL)
@@ -41,7 +47,7 @@ int config_init(void)
 			continue;
 
 		m = delim - line;
-		if (m == 0) {
+		if (m == 0 || m > MAX_KEY_SIZE - 1) {
 			fclose(f);
 			return -2;
 		}
@@ -50,13 +56,30 @@ int config_init(void)
 		if (end == NULL)
 			end = line + strlen(line);
 
-		n = end - (line + m + 1);
-		if (n == 0) {
+		n = end - (delim + 1);
+		if (n == 0 || n > MAX_VALUE_SIZE - 1) {
 			fclose(f);
 			return -3;
 		}
 
-		strncpy(config[hash(line, m) % MAX_KEYS], delim + 1, n);
+		k = 0;
+		h = hash(line, m) % MAX_KEYS;
+		for (i = 0; i < n; i++) {
+			for (j = k; j < n; j++) {
+				if ( isspace((unsigned char) delim[1 + j]) )
+					continue;
+				k = j;
+				break;
+			}
+			if (j == n)
+				break;
+			config[h][i] = delim[1 + k];
+			k++;
+		}
+		if (config[h][0] == '\0') {
+			fclose(f);
+			return -4;
+		}
 	}
 	fclose(f);
 

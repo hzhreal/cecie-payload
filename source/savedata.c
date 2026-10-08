@@ -94,7 +94,7 @@ int sealedkey_decrypt_path(SealedKey *sk, const char *path)
 
 static inline uint16_t sealedkey_version_get(const SealedKey *sk)
 {
-	return (sk->enc[9] << 8 ) | sk->enc[8];
+	return (sk->enc[9] << 8) | sk->enc[8];
 }
 
 int sealedkey_keyset_check(const char *path)

@@ -174,7 +174,7 @@ int main(void)
 		return 1;
 	}
 
-	printf("CECIE-payload is listening on port %d.\n", port);
+	printf("CECIE-payload is listening on port %" PRIu16 ".\n", port);
 
 	struct sockaddr_in client_addr;
 	socklen_t addr_len;
