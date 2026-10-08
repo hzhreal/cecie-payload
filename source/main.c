@@ -137,7 +137,11 @@ int main(void)
 		perror("setuid");
 		return 1;
 	}
-
+	if ( savedata_maxkeyset() == 0 ) {
+		fprintf(stderr, "Failed to get keyset.\n");
+		return 1;
+	}
+	srand(time(NULL));
 	if ( config_init() != 0 ) {
 		fprintf(stderr, "Failed to initialize config file %s.\n", CONFIG_PATH);
 		return 1;
@@ -147,9 +151,6 @@ int main(void)
 		fprintf(stderr, "Invalid config file %s.\n", CONFIG_PATH);
 		return 1;
 	}
-
-	srand(time(NULL));
-	savedata_maxkeyset();
 
 	int sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0) {
