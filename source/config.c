@@ -86,9 +86,14 @@ int config_init(void)
 	return 0;
 }
 
+static inline bool exists(const char *x)
+{
+	return *x != '\0';
+}
+
 bool config_exists(const char *key)
 {
-	return config_get_str(key) != NULL;
+	return exists(config_get_str(key));
 }
 
 const char *config_get_str(const char *key)
@@ -99,7 +104,7 @@ const char *config_get_str(const char *key)
 int config_get_u16(const char *key, uint16_t *n)
 {
 	const char *x = config[hash(key, strlen(key)) % MAX_KEYS];
-	if (x == NULL)
+	if ( !exists(x) )
 		return -1;
 
 	errno = 0;
